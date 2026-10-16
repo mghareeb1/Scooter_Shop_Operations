@@ -1,1037 +1,167 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام ادارة العمليات اليوميه  - Scooter Shop Company</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-primary: #0b0b0e;
-            --bg-card: #15151c;
-            --bg-card-hover: #1c1c26;
-            --accent-orange: #FF6A00;
-            --accent-orange-hover: #e05d00;
-            --accent-gold: #FFB800;
-            --text-main: #FFFFFF;
-            --text-muted: #9494a0;
-            --border-color: #272733;
-            
-            /* Status Colors */
-            --status-new-border: #FF3B30;
-            --status-new-bg: rgba(255, 59, 48, 0.12);
-            --status-progress-border: #FF9500;
-            --status-progress-bg: rgba(255, 149, 0, 0.12);
-            --status-solved-border: #34C759;
-            --status-solved-bg: rgba(52, 199, 89, 0.12);
-            
-            --radius-lg: 14px;
-            --radius-md: 8px;
-            --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.45);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--bg-primary);
-            background-image: 
-                radial-gradient(circle at 50% 5%, rgba(255, 106, 0, 0.08) 0%, transparent 55%),
-                linear-gradient(45deg, #111116 25%, transparent 25%), 
-                linear-gradient(-45deg, #111116 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #111116 75%), 
-                linear-gradient(-45deg, transparent 75%, #111116 75%);
-            background-size: 100% 100%, 14px 14px, 14px 14px, 14px 14px, 14px 14px;
-            background-position: 0 0, 0 0, 7px 0, 7px -7px, 0px 7px;
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 20px 14px 60px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 900px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Header */
-        header {
-            text-align: center;
-            margin-bottom: 22px;
-            width: 100%;
-        }
-
-        .logo-wrapper {
-            width: 95px;
-            height: 95px;
-            margin: 0 auto 10px;
-            border-radius: 50%;
-            background: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 3px solid var(--accent-orange);
-            box-shadow: 0 0 25px rgba(255, 106, 0, 0.4);
-            overflow: hidden;
-            padding: 6px;
-        }
-
-        .logo-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .brand-title {
-            font-size: 1.35rem;
-            font-weight: 900;
-            letter-spacing: 0.5px;
-            color: var(--text-main);
-        }
-
-        .brand-subtitle {
-            font-size: 0.84rem;
-            color: var(--accent-orange);
-            font-weight: 700;
-            margin-top: 3px;
-        }
-
-        /* Metrics Grid */
-        .metrics-grid {
-            width: 100%;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .metric-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 12px;
-            text-align: center;
-            box-shadow: var(--shadow-card);
-        }
-
-        .metric-title {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-
-        .metric-value {
-            font-size: 1.4rem;
-            font-weight: 900;
-        }
-
-        .val-new { color: #FF3B30; }
-        .val-progress { color: #FF9500; }
-        .val-archive { color: #34C759; }
-        .val-all { color: var(--accent-orange); }
-
-        /* Action Toolbar */
-        .action-bar {
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .btn-main {
-            background: var(--accent-orange);
-            color: #fff;
-            border: none;
-            padding: 9px 18px;
-            border-radius: var(--radius-md);
-            font-size: 0.85rem;
-            font-weight: 800;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-main:hover {
-            background: var(--accent-orange-hover);
-            transform: translateY(-1px);
-        }
-
-        .btn-outline {
-            background: rgba(255, 106, 0, 0.08);
-            border: 1px solid var(--accent-orange);
-            color: var(--accent-orange);
-            padding: 9px 16px;
-            border-radius: var(--radius-md);
-            font-size: 0.82rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-outline:hover, .btn-outline.active {
-            background: var(--accent-orange);
-            color: #fff;
-        }
-
-        /* Search & Filters Section */
-        .controls-card {
-            width: 100%;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 14px;
-            margin-bottom: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            box-shadow: var(--shadow-card);
-        }
-
-        .search-box {
-            position: relative;
-            width: 100%;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-input {
-            width: 100%;
-            background: #101016;
-            border: 1.5px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 10px 38px 10px 14px;
-            color: #fff;
-            font-size: 0.9rem;
-            outline: none;
-            transition: border-color 0.2s ease;
-        }
-
-        .search-input:focus {
-            border-color: var(--accent-orange);
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 12px;
-            color: var(--accent-orange);
-            width: 18px;
-            height: 18px;
-            pointer-events: none;
-        }
-
-        .filter-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .select-filter {
-            flex: 1;
-            min-width: 140px;
-            background: #101016;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            color: #e0e0e0;
-            padding: 8px 10px;
-            font-size: 0.8rem;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .select-filter:focus {
-            border-color: var(--accent-orange);
-        }
-
-        /* Tickets List */
-        .tickets-container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .ticket-card {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color);
-            padding: 14px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            box-shadow: var(--shadow-card);
-            transition: transform 0.15s ease, background 0.15s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ticket-card:hover {
-            background: var(--bg-card-hover);
-        }
-
-        /* Color Coding based on Status */
-        .ticket-card.status-new {
-            border-right: 5px solid var(--status-new-border);
-        }
-        .ticket-card.status-progress {
-            border-right: 5px solid var(--status-progress-border);
-        }
-        .ticket-card.status-solved, .ticket-card.status-closed {
-            border-right: 5px solid var(--status-solved-border);
-        }
-
-        .ticket-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px dashed #242430;
-            padding-bottom: 8px;
-        }
-
-        .ticket-id {
-            font-size: 0.85rem;
-            font-weight: 900;
-            color: var(--accent-orange);
-            letter-spacing: 0.5px;
-        }
-
-        .ticket-badges {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .badge {
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 4px;
-        }
-
-        .badge-branch {
-            background: #242432;
-            color: #d1d1db;
-        }
-
-        .badge-category {
-            background: rgba(255, 184, 0, 0.12);
-            color: var(--accent-gold);
-            border: 1px solid rgba(255, 184, 0, 0.3);
-        }
-
-        .badge-status-new {
-            background: var(--status-new-bg);
-            color: var(--status-new-border);
-            border: 1px solid var(--status-new-border);
-        }
-
-        .badge-status-progress {
-            background: var(--status-progress-bg);
-            color: var(--status-progress-border);
-            border: 1px solid var(--status-progress-border);
-        }
-
-        .badge-status-solved {
-            background: var(--status-solved-bg);
-            color: var(--status-solved-border);
-            border: 1px solid var(--status-solved-border);
-        }
-
-        .ticket-body {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .client-info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        .client-name {
-            font-size: 0.95rem;
-            font-weight: 800;
-            color: #fff;
-        }
-
-        .contact-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .btn-call, .btn-wa {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            text-decoration: none;
-            transition: opacity 0.2s;
-        }
-
-        .btn-call {
-            background: #2979FF;
-            color: #fff;
-        }
-
-        .btn-wa {
-            background: #25D366;
-            color: #fff;
-        }
-
-        .btn-call:hover, .btn-wa:hover {
-            opacity: 0.85;
-        }
-
-        .scooter-meta {
-            font-size: 0.76rem;
-            color: var(--text-muted);
-        }
-
-        .issue-text {
-            font-size: 0.86rem;
-            color: #e4e4ec;
-            line-height: 1.45;
-            background: #111117;
-            padding: 8px 10px;
-            border-radius: var(--radius-md);
-            border-left: 2px solid #2e2e3e;
-            margin-top: 4px;
-        }
-
-        .ticket-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-            border-top: 1px dashed #242430;
-            padding-top: 8px;
-            font-size: 0.74rem;
-            color: var(--text-muted);
-        }}
-
-        .assignee-box {
-            color: #FFA726;
-            font-weight: 700;
-        }
-
-        .btn-update-status {
-            background: #20202c;
-            color: #fff;
-            border: 1px solid #363648;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.74rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-update-status:hover {
-            background: var(--accent-orange);
-            border-color: var(--accent-orange);
-        }
-
-        /* Modals */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-card {
-            background: var(--bg-card);
-            border: 1.5px solid var(--accent-orange);
-            border-radius: var(--radius-lg);
-            width: 100%;
-            max-width: 500px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-
-        .modal-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--accent-orange);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .form-label {
-            font-size: 0.76rem;
-            color: var(--text-muted);
-            font-weight: 700;
-        }
-
-        .form-input, .form-textarea, .form-select {
-            background: #101016;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 8px 10px;
-            color: #fff;
-            font-size: 0.85rem;
-            outline: none;
-        }
-
-        .form-input:focus, .form-textarea:focus, .form-select:focus {
-            border-color: var(--accent-orange);
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 70px;
-        }
-
-        /* Loading / Empty States */
-        .loading-spinner {
-            text-align: center;
-            padding: 40px;
-            color: var(--accent-orange);
-            font-size: 0.95rem;
-            font-weight: 700;
-        }
-
-        .empty-box {
-            text-align: center;
-            padding: 50px 10px;
-            color: var(--text-muted);
-        }
-
-        .empty-box svg {
-            width: 48px;
-            height: 48px;
-            fill: #272733;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <header>
-            <div class="logo-wrapper">
-                <img src="logo.jpg" alt="Scooter Shop Company" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2972/2972185.png'">
-            </div>
-            <h1 class="brand-title">SCOOTER SHOP COMPANY</h1>
-            <p class="brand-subtitle">نظام متابعه العمليات اليوميه</p>
-        </header>
-
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-title">حالات جديدة (عاجلة)</div>
-                <div id="countNew" class="metric-value val-new">0</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-title">قيد المتابعة</div>
-                <div id="countProgress" class="metric-value val-progress">0</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-title">سجل الأرشيف (تم الحل)</div>
-                <div id="countSolved" class="metric-value val-archive">0</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-title">إجمالي البلاغات</div>
-                <div id="countTotal" class="metric-value val-all">0</div>
-            </div>
-        </div>
-
-        <div class="action-bar">
-            <button class="btn-main" onclick="openCreateModal()">
-                <svg style="width:16px;height:16px" viewBox="0 0 24 24"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                فتح تذكرة استثنائية جديدة +
-            </button>
-            <button id="archiveToggleBtn" class="btn-outline" onclick="toggleArchiveView()">
-                <svg style="width:16px;height:16px" viewBox="0 0 24 24"><path fill="currentColor" d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"/></svg>
-                عرض الأرشيف (الحالات المنتهية)
-            </button>
-        </div>
-
-        <div class="controls-card">
-            <div class="search-box">
-                <svg class="search-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                <input type="text" id="searchInput" class="search-input" placeholder="ابحث باسم العميل، رقم الهاتف، رقم الشاسيه، أو رقم التذكرة..." oninput="filterTickets()">
-            </div>
-            <div class="filter-row">
-                <select id="branchFilter" class="select-filter" onchange="filterTickets()">
-                    <option value="">جميع الفروع (6 فروع)</option>
-                    <option value="مدينة نصر">مدينة نصر</option>
-                    <option value="العاشر من رمضان">العاشر من رمضان</option>
-                    <option value="الزقازيق">الزقازيق</option>
-                    <option value="المنصورة">المنصورة</option>
-                    <option value="بلقاس">بلقاس</option>
-                    <option value="دمياط الجديدة">دمياط الجديدة</option>
-                </select>
-
-                <select id="categoryFilter" class="select-filter" onchange="filterTickets()">
-                    <option value="">جميع الأقسام</option>
-                    <option value="صيانة متعطلة">صيانة متعطلة</option>
-                    <option value="قطع غيار حرجة">قطع غيار حرجة</option>
-                    <option value="شكاوى عملاء">شكاوى وتصعيد عملاء</option>
-                    <option value="أوراق وترخيص">تأخير أوراق وترخيص</option>
-                </select>
-
-                <select id="priorityFilter" class="select-filter" onchange="filterTickets()">
-                    <option value="">جميع الأولويات</option>
-                    <option value="عاجل جداً">عاجل جداً 🔴</option>
-                    <option value="متوسط">متوسط 🟡</option>
-                    <option value="عادي">عادي</option>
-                </select>
-            </div>
-        </div>
-
-        <div id="ticketsContainer" class="tickets-container">
-            <div class="loading-spinner">جاري جلب بيانات التذاكر والعمليات...</div>
-        </div>
-
-        <div id="emptyBox" class="empty-box" style="display:none">
-            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
-            <h3>لا توجد تذاكر مطابقة حالياً</h3>
-            <p>كافة الأمور مستقرة في هذا القسم أو الفرع.</p>
-        </div>
-    </div>
-
-    <!-- Modal: Create New Ticket -->
-    <div id="createModal" class="modal-overlay">
-        <div class="modal-card">
-            <div class="modal-title">
-                <span>فتح تذكرة استثنائية جديدة</span>
-                <button class="modal-close" onclick="closeCreateModal()">✕</button>
-            </div>
-            
-            <form id="createTicketForm" onsubmit="handleCreateTicket(event)">
-                <div class="form-group">
-                    <label class="form-label">الفرع *</label>
-                    <select id="newBranch" class="form-select" required>
-                        <option value="مدينة نصر">مدينة نصر</option>
-                        <option value="العاشر من رمضان">العاشر من رمضان</option>
-                        <option value="الزقازيق">الزقازيق</option>
-                        <option value="المنصورة">المنصورة</option>
-                        <option value="بلقاس">بلقاس</option>
-                        <option value="دمياط الجديدة">دمياط الجديدة</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">نوع المشكلة / القسم *</label>
-                    <select id="newCategory" class="form-select" required>
-                        <option value="صيانة متعطلة">صيانة متعطلة ومعقدة</option>
-                        <option value="قطع غيار حرجة">قطع غيار حرجة ونواقص</option>
-                        <option value="شكاوى عملاء">شكاوى وتصعيد عملاء</option>
-                        <option value="أوراق وترخيص">تأخير أوراق وترخيص</option>
-                    </select>
-                </div>
-
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                    <div class="form-group">
-                        <label class="form-label">اسم العميل *</label>
-                        <input type="text" id="newClientName" class="form-input" placeholder="اسم العميل" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">رقم الهاتف *</label>
-                        <input type="tel" id="newClientPhone" class="form-input" placeholder="01xxxxxxxxx" required>
-                    </div>
-                </div>
-
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                    <div class="form-group">
-                        <label class="form-label">موديل السكوتر *</label>
-                        <input type="text" id="newScooterModel" class="form-input" placeholder="مثل: Jet 14, Fiddle 3" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">رقم الشاسيه / اللوحة</label>
-                        <input type="text" id="newChassisNo" class="form-input" placeholder="اختياري">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">تفاصيل المشكلة ونقطة التعطيل *</label>
-                    <textarea id="newIssue" class="form-textarea" placeholder="اشرح تفاصيل المشكلة وما المطلوب للحل..." required></textarea>
-                </div>
-
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                    <div class="form-group">
-                        <label class="form-label">درجة الأولوية</label>
-                        <select id="newPriority" class="form-select">
-                            <option value="عاجل جداً">عاجل جداً 🔴</option>
-                            <option value="متوسط" selected>متوسط 🟡</option>
-                            <option value="عادي">عادي</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">المسؤول المكلف بالمتابعة</label>
-                        <input type="text" id="newAssignee" class="form-input" placeholder="اسم الشخص المسؤول">
-                    </div>
-                </div>
-
-                <button type="submit" id="btnSubmitCreate" class="btn-main" style="width:100%; justify-content:center; margin-top:10px;">
-                    تسجيل التذكرة فوراً
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal: Update Status / Notes -->
-    <div id="updateModal" class="modal-overlay">
-        <div class="modal-card">
-            <div class="modal-title">
-                <span id="updateModalTicketId">تحديث التذكرة</span>
-                <button class="modal-close" onclick="closeUpdateModal()">✕</button>
-            </div>
-            
-            <form id="updateTicketForm" onsubmit="handleUpdateStatus(event)">
-                <input type="hidden" id="updateTargetId">
-                
-                <div class="form-group">
-                    <label class="form-label">تعديل الحالة إلى *</label>
-                    <select id="updateStatusSelect" class="form-select" required>
-                        <option value="قيد المتابعة">قيد المتابعة 🟡</option>
-                        <option value="تم الحل">تم الحل (نقل للأرشيف) 🟢</option>
-                        <option value="مغلقة">مغلقة نهائياً (نقل للأرشيف) 🟢</option>
-                        <option value="جديدة">جديدة 🔴</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">إضافة ملاحظة / تفاصيل الإجراء المتخذ</label>
-                    <textarea id="updateNoteText" class="form-textarea" placeholder="اكتب ما تم من اتصال، توفير قطع، إنهاء ورق..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">سجل المتابعات السابقة:</label>
-                    <div id="existingNotesLog" style="font-size:0.75rem; color:#a1a1b0; background:#101016; padding:8px; border-radius:6px; max-height:100px; overflow-y:auto; white-space:pre-wrap;"></div>
-                </div>
-
-                <button type="submit" id="btnSubmitUpdate" class="btn-main" style="width:100%; justify-content:center; margin-top:10px;">
-                    حفظ التحديث
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyajyPLVB91fJDSDryif4br0AUS-zXsu4VSHLkBDLCisrWpFGPfKk27nG_MTPjbP1MJ2A/exec";
-
-        let ALL_TICKETS = [];
-        let IS_ARCHIVE_VIEW = false;
-
-        async function fetchTickets() {
-            const container = document.getElementById('ticketsContainer');
-            try {
-                const res = await fetch(`${API_URL}?action=getTickets`);
-                const data = await res.json();
-
-                if (data.success) {
-                    ALL_TICKETS = data.tickets || [];
-                    updateMetrics();
-                    filterTickets();
-                } else {
-                    container.innerHTML = `<div style="color:#ff3b30; text-align:center;">خطأ: ${data.message || 'تعذر تحميل البيانات'}</div>`;
-                }
-            } catch (err) {
-                container.innerHTML = `<div style="color:#ff3b30; text-align:center;">خطأ في الاتصال بالخادم. تأكد من إعدادات النشر لـ Apps Script.</div>`;
-            }
-        }
-
-        function updateMetrics() {
-            let countNew = 0;
-            let countProgress = 0;
-            let countSolved = 0;
-
-            ALL_TICKETS.forEach(t => {
-                if (t.status === 'جديدة') countNew++;
-                else if (t.status === 'قيد المتابعة') countProgress++;
-                else if (t.status === 'تم الحل' || t.status === 'مغلقة') countSolved++;
-            });
-
-            document.getElementById('countNew').textContent = countNew;
-            document.getElementById('countProgress').textContent = countProgress;
-            document.getElementById('countSolved').textContent = countSolved;
-            document.getElementById('countTotal').textContent = ALL_TICKETS.length;
-        }
-
-        function filterTickets() {
-            const search = document.getElementById('searchInput').value.trim().toLowerCase();
-            const branch = document.getElementById('branchFilter').value;
-            const category = document.getElementById('categoryFilter').value;
-            const priority = document.getElementById('priorityFilter').value;
-
-            const filtered = ALL_TICKETS.filter(t => {
-                const isSolved = (t.status === 'تم الحل' || t.status === 'مغلقة');
-                if (IS_ARCHIVE_VIEW && !isSolved) return false;
-                if (!IS_ARCHIVE_VIEW && isSolved) return false;
-
-                if (branch && t.branch !== branch) return false;
-                if (category && t.category !== category) return false;
-                if (priority && t.priority !== priority) return false;
-
-                if (search) {
-                    const match = (t.clientName && t.clientName.toLowerCase().includes(search)) ||
-                                  (t.clientPhone && t.clientPhone.includes(search)) ||
-                                  (t.chassisNo && t.chassisNo.toLowerCase().includes(search)) ||
-                                  (t.id && t.id.toLowerCase().includes(search)) ||
-                                  (t.issue && t.issue.toLowerCase().includes(search));
-                    if (!match) return false;
-                }
-
-                return true;
-            });
-
-            renderTickets(filtered);
-        }
-
-        function renderTickets(tickets) {
-            const container = document.getElementById('ticketsContainer');
-            const emptyBox = document.getElementById('emptyBox');
-
-            container.innerHTML = '';
-
-            if (tickets.length === 0) {
-                emptyBox.style.display = 'block';
-                return;
-            }
-
-            emptyBox.style.display = 'none';
-            const fragment = document.createDocumentFragment();
-
-            tickets.forEach(t => {
-                let statusClass = 'status-new';
-                let statusBadgeClass = 'badge-status-new';
-                if (t.status === 'قيد المتابعة') {
-                    statusClass = 'status-progress';
-                    statusBadgeClass = 'badge-status-progress';
-                } else if (t.status === 'تم الحل' || t.status === 'مغلقة') {
-                    statusClass = 'status-solved';
-                    statusBadgeClass = 'badge-status-solved';
-                }
-
-                const cleanPhone = (t.clientPhone || '').replace(/\D/g, '');
-                const waPhone = cleanPhone.startsWith('0') ? '2' + cleanPhone : cleanPhone;
-
-                const card = document.createElement('div');
-                card.className = `ticket-card ${statusClass}`;
-
-                card.innerHTML = `
-                    <div class="ticket-header">
-                        <span class="ticket-id">${escapeHtml(t.id)}</span>
-                        <div class="ticket-badges">
-                            <span class="badge badge-branch">${escapeHtml(t.branch)}</span>
-                            <span class="badge badge-category">${escapeHtml(t.category)}</span>
-                            <span class="badge ${statusBadgeClass}">${escapeHtml(t.status)}</span>
-                        </div>
-                    </div>
-
-                    <div class="ticket-body">
-                        <div class="client-info-row">
-                            <span class="client-name">${escapeHtml(t.clientName)}</span>
-                            <div class="contact-actions">
-                                <a href="tel:${cleanPhone}" class="btn-call">📞 اتصال</a>
-                                <a href="https://wa.me/${waPhone}" target="_blank" class="btn-wa">💬 واتساب</a>
-                            </div>
-                        </div>
-
-                        <div class="scooter-meta">
-                            سكوتر: <strong>${escapeHtml(t.scooterModel)}</strong> 
-                            ${t.chassisNo && t.chassisNo !== '-' ? ` | شاسيه: <strong>${escapeHtml(t.chassisNo)}</strong>` : ''}
-                        </div>
-
-                        <div class="issue-text">
-                            ${escapeHtml(t.issue)}
-                        </div>
-                    </div>
-
-                    <div class="ticket-footer">
-                        <span>بتاريخ: ${escapeHtml(t.date)}</span>
-                        <span class="assignee-box">المكلف: ${escapeHtml(t.assignee || 'غير محدد')}</span>
-                        <button class="btn-update-status" onclick="openUpdateModal('${t.id}')">تحديث الحالة والملاحظات ✍️</button>
-                    </div>
-                `;
-                fragment.appendChild(card);
-            });
-
-            container.appendChild(fragment);
-        }
-
-        function toggleArchiveView() {
-            IS_ARCHIVE_VIEW = !IS_ARCHIVE_VIEW;
-            const btn = document.getElementById('archiveToggleBtn');
-            if (IS_ARCHIVE_VIEW) {
-                btn.classList.add('active');
-                btn.innerHTML = `عرض الحالات النشطة المفتوحة 📋`;
-            } else {
-                btn.classList.remove('active');
-                btn.innerHTML = `<svg style="width:16px;height:16px" viewBox="0 0 24 24"><path fill="currentColor" d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"/></svg> عرض الأرشيف (الحالات المنتهية)`;
-            }
-            filterTickets();
-        }
-
-        function openCreateModal() {
-            document.getElementById('createModal').classList.add('active');
-        }
-
-        function closeCreateModal() {
-            document.getElementById('createModal').classList.remove('active');
-        }
-
-        async function handleCreateTicket(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('btnSubmitCreate');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'جاري الحفظ في الشيت...';
-
-            const payload = {
-                action: 'createTicket',
-                branch: document.getElementById('newBranch').value,
-                category: document.getElementById('newCategory').value,
-                clientName: document.getElementById('newClientName').value.trim(),
-                clientPhone: document.getElementById('newClientPhone').value.trim(),
-                scooterModel: document.getElementById('newScooterModel').value.trim(),
-                chassisNo: document.getElementById('newChassisNo').value.trim(),
-                issue: document.getElementById('newIssue').value.trim(),
-                priority: document.getElementById('newPriority').value,
-                assignee: document.getElementById('newAssignee').value.trim()
-            };
-
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    alert('تم إنشاء التذكرة بنجاح برقم: ' + data.id);
-                    document.getElementById('createTicketForm').reset();
-                    closeCreateModal();
-                    fetchTickets();
-                } else {
-                    alert('حدث خطأ: ' + data.message);
-                }
-            } catch (err) {
-                alert('فشل في إرسال البيانات إلى السيرفر.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'تسجيل التذكرة فوراً';
-            }
-        }
-
-        function openUpdateModal(ticketId) {
-            const t = ALL_TICKETS.find(item => item.id === ticketId);
-            if (!t) return;
-
-            document.getElementById('updateTargetId').value = t.id;
-            document.getElementById('updateModalTicketId').textContent = `تحديث التذكرة (${t.id}) - ${t.clientName}`;
-            document.getElementById('updateStatusSelect').value = t.status;
-            document.getElementById('updateNoteText').value = '';
-            document.getElementById('existingNotesLog').textContent = t.notes || 'لا توجد ملاحظات سابقة مدونة.';
-
-            document.getElementById('updateModal').classList.add('active');
-        }
-
-        function closeUpdateModal() {
-            document.getElementById('updateModal').classList.remove('active');
-        }
-
-        async function handleUpdateStatus(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('btnSubmitUpdate');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'جاري التحديث...';
-
-            const payload = {
-                action: 'updateStatus',
-                id: document.getElementById('updateTargetId').value,
-                status: document.getElementById('updateStatusSelect').value,
-                note: document.getElementById('updateNoteText').value.trim()
-            };
-
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    closeUpdateModal();
-                    fetchTickets();
-                } else {
-                    alert('خطأ: ' + data.message);
-                }
-            } catch (err) {
-                alert('فشل تحديث البيانات على السيرفر.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'حفظ التحديث';
-            }
-        }
-
-        function escapeHtml(str) {
-            return String(str || '').replace(/[&<>"']/g, m => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-            })[m]);
-        }
-
-        document.addEventListener('DOMContentLoaded', fetchTickets);
-    </script>
-</body>
-</html>
+/**
+ * اسم المنظومة: Scooter Shop Operations API - Full CRUD & Logs
+ * المميزات: جلب، إضافة، تعديل، حذف، وتوثيق سجل التحديثات لحظياً
+ * مربوط بـ: واجهة index.html عبر doGet و doPost
+ */
+
+function doGet(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName("Tickets");
+
+    if (!sheet) {
+      return responseJSON({ success: false, message: "تبويب Tickets غير موجود." });
+    }
+
+    const data = sheet.getDataRange().getValues();
+    const tickets = [];
+
+    // قراءة البيانات من الصف الثاني بعد الهيدر
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      if (row[0]) {
+        tickets.push({
+          id: String(row[0]),
+          date: formatDate(row[1]),
+          branch: String(row[2]),
+          category: String(row[3]),
+          clientName: String(row[4]),
+          clientPhone: String(row[5] || ""),
+          scooterModel: String(row[6]),
+          chassisNo: String(row[7] || "-"),
+          issue: String(row[8]),
+          priority: String(row[9]),
+          assignee: String(row[10]),
+          status: String(row[11]),
+          notes: String(row[12] || "")
+        });
+      }
+    }
+
+    return responseJSON({ success: true, tickets: tickets });
+  } catch (err) {
+    return responseJSON({ success: false, error: err.toString() });
+  }
+}
+
+function doPost(e) {
+  try {
+    const payload = JSON.parse(e.postData.contents);
+    const action = payload.action;
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName("Tickets");
+
+    if (!sheet) {
+      return responseJSON({ success: false, message: "تبويب Tickets غير موجود." });
+    }
+
+    // 1. فتح تذكرة جديدة
+    if (action === "createTicket") {
+      const lastRow = sheet.getLastRow();
+      const nextId = "SS-" + (1000 + lastRow);
+      const timestamp = new Date();
+
+      sheet.appendRow([
+        nextId,
+        timestamp,
+        payload.branch,
+        payload.category,
+        payload.clientName,
+        payload.clientPhone || "-",
+        payload.scooterModel,
+        payload.chassisNo || "-",
+        payload.issue,
+        payload.priority || "عادي",
+        payload.assignee || "غير محدد",
+        "جديدة",
+        `[${formatDate(timestamp)}] تم إنشاء التذكرة بواسطة الإدارة`
+      ]);
+
+      return responseJSON({ success: true, message: "تم إنشاء التذكرة بنجاح", id: nextId });
+    }
+
+    // 2. تحديث الحالة وإضافة ملاحظة للسجل
+    if (action === "updateStatus") {
+      const ticketId = payload.id;
+      const newStatus = payload.status;
+      const note = (payload.note || "").trim();
+      const data = sheet.getDataRange().getValues();
+
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(ticketId)) {
+          const rowNum = i + 1;
+          sheet.getRange(rowNum, 12).setValue(newStatus);
+
+          const currentNotes = String(sheet.getRange(rowNum, 13).getValue() || "");
+          const timeStr = formatDate(new Date());
+          const newEntry = note ? `[${timeStr}] (${newStatus}): ${note}` : `[${timeStr}] تم تغيير الحالة إلى (${newStatus})`;
+          const updatedNotes = currentNotes ? currentNotes + "\n" + newEntry : newEntry;
+
+          sheet.getRange(rowNum, 13).setValue(updatedNotes);
+          return responseJSON({ success: true, message: "تم تحديث التذكرة بنجاح" });
+        }
+      }
+      return responseJSON({ success: false, message: "التذكرة غير موجودة" });
+    }
+
+    // 3. تعديل بيانات التذكرة بالكامل
+    if (action === "editTicket") {
+      const ticketId = payload.id;
+      const data = sheet.getDataRange().getValues();
+
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(ticketId)) {
+          const rowNum = i + 1;
+          sheet.getRange(rowNum, 3).setValue(payload.branch);
+          sheet.getRange(rowNum, 4).setValue(payload.category);
+          sheet.getRange(rowNum, 5).setValue(payload.clientName);
+          sheet.getRange(rowNum, 6).setValue(payload.clientPhone || "-");
+          sheet.getRange(rowNum, 7).setValue(payload.scooterModel);
+          sheet.getRange(rowNum, 8).setValue(payload.chassisNo || "-");
+          sheet.getRange(rowNum, 9).setValue(payload.issue);
+          sheet.getRange(rowNum, 10).setValue(payload.priority);
+          sheet.getRange(rowNum, 11).setValue(payload.assignee);
+
+          const currentNotes = String(sheet.getRange(rowNum, 13).getValue() || "");
+          const updatedNotes = currentNotes + "\n" + `[${formatDate(new Date())}] تم تعديل بيانات التذكرة`;
+          sheet.getRange(rowNum, 13).setValue(updatedNotes);
+
+          return responseJSON({ success: true, message: "تم تعديل بيانات التذكرة بنجاح" });
+        }
+      }
+      return responseJSON({ success: false, message: "التذكرة غير موجودة" });
+    }
+
+    // 4. حذف التذكرة
+    if (action === "deleteTicket") {
+      const ticketId = payload.id;
+      const data = sheet.getDataRange().getValues();
+
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(ticketId)) {
+          sheet.deleteRow(i + 1);
+          return responseJSON({ success: true, message: "تم حذف التذكرة بنجاح" });
+        }
+      }
+      return responseJSON({ success: false, message: "التذكرة غير موجودة" });
+    }
+
+    return responseJSON({ success: false, message: "إجراء غير معروف" });
+  } catch (err) {
+    return responseJSON({ success: false, error: err.toString() });
+  }
+}
+
+function formatDate(date) {
+  if (!date) return "";
+  try {
+    return Utilities.formatDate(new Date(date), "GMT+2", "yyyy-MM-dd HH:mm");
+  } catch (e) {
+    return String(date);
+  }
+}
+
+function responseJSON(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
