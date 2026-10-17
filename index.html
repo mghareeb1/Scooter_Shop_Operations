@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متباعه العمليات اليوميه - Scooter Shop Company</title>
+    <title>منظومة العمليات وإدارة الحالات الاستثنائية - Scooter Shop Company</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -371,19 +371,9 @@
             border: 1px solid #1e1e28;
             border-radius: var(--radius-md);
             padding: 8px 10px;
-            font-size: 0.74rem;
+            font-size: 0.76rem;
             color: #a8a8b8;
             line-height: 1.5;
-            white-space: pre-wrap;
-            max-height: 90px;
-            overflow-y: auto;
-        }
-
-        .timeline-header {
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: var(--accent-orange);
-            margin-bottom: 2px;
         }
 
         .ticket-footer {
@@ -425,7 +415,6 @@
             border-color: #ff3b30;
         }
 
-        /* Modals */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -534,7 +523,7 @@
                 <img src="logo.png" alt="Scooter Shop Company" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2972/2972185.png'">
             </div>
             <h1 class="brand-title">SCOOTER SHOP COMPANY</h1>
-            <p class="brand-subtitle">متابعه العمليات اليوميه</p>
+            <p class="brand-subtitle">غرفة العمليات المركزية ومتابعة الحالات الاستثنائية</p>
         </header>
 
         <!-- الإحصائيات -->
@@ -731,7 +720,7 @@
         </div>
     </div>
 
-    <!-- نافذة: تعديل بيانات التذكرة بالكامل (Edit Full Ticket) -->
+    <!-- نافذة: تعديل بيانات التذكرة بالكامل -->
     <div id="editModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-title">
@@ -814,8 +803,23 @@
         </div>
     </div>
 
+    <!-- نافذة منبثقة: عرض السجل الكامل للتحديثات -->
+    <div id="historyModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title">
+                <span id="historyModalTitle">سجل التحديثات الكامل</span>
+                <button class="modal-close" onclick="closeHistoryModal()">✕</button>
+            </div>
+            <div id="historyContent" style="font-size:0.82rem; color:#e0e0ec; background:#101016; padding:12px; border-radius:8px; max-height:300px; overflow-y:auto; line-height:1.6; white-space:pre-wrap; border:1px solid #272733;">
+            </div>
+            <button type="button" class="btn-outline" style="width:100%; justify-content:center; margin-top:8px;" onclick="closeHistoryModal()">
+                إغلاق
+            </button>
+        </div>
+    </div>
+
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyj3FfYxGO-NmXi3ikfOjNjGuRboqJW1LuQ987571hgXzbYE8U1bPhOhv3omAXos2-58g/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbyajyPLVB91fJDSDryif4br0AUS-zXsu4VSHLkBDLCisrWpFGPfKk27nG_MTPjbP1MJ2A/exec";
 
         let ALL_TICKETS = [];
         let IS_ARCHIVE_VIEW = false;
@@ -885,20 +889,98 @@
             renderTickets(filtered);
         }
 
-        <!-- نافذة منبثقة: عرض السجل الكامل للتحديثات -->
-<div id="historyModal" class="modal-overlay">
-    <div class="modal-card">
-        <div class="modal-title">
-            <span id="historyModalTitle">سجل التحديثات الكامل</span>
-            <button class="modal-close" onclick="closeHistoryModal()">✕</button>
-        </div>
-        <div id="historyContent" style="font-size:0.82rem; color:#e0e0ec; background:#101016; padding:12px; border-radius:8px; max-height:300px; overflow-y:auto; line-height:1.6; white-space:pre-wrap; border:1px solid #272733;">
-        </div>
-        <button type="button" class="btn-outline" style="width:100%; justify-content:center; margin-top:8px;" onclick="closeHistoryModal()">
-            إغلاق
-        </button>
-    </div>
-</div>
+        function renderTickets(tickets) {
+            const container = document.getElementById('ticketsContainer');
+            const emptyBox = document.getElementById('emptyBox');
+
+            container.innerHTML = '';
+
+            if (tickets.length === 0) {
+                emptyBox.style.display = 'block';
+                return;
+            }
+
+            emptyBox.style.display = 'none';
+            const fragment = document.createDocumentFragment();
+
+            tickets.forEach(t => {
+                let statusClass = 'status-new';
+                let statusBadgeClass = 'badge-status-new';
+                if (t.status === 'قيد المتابعة') {
+                    statusClass = 'status-progress';
+                    statusBadgeClass = 'badge-status-progress';
+                } else if (t.status === 'تم الحل' || t.status === 'مغلقة') {
+                    statusClass = 'status-solved';
+                    statusBadgeClass = 'badge-status-solved';
+                }
+
+                const cleanPhone = (t.clientPhone || '').replace(/\D/g, '');
+                const waPhone = cleanPhone.startsWith('0') ? '2' + cleanPhone : cleanPhone;
+                const hasPhone = cleanPhone && cleanPhone.length >= 8;
+
+                // استخراج آخر تحديث فقط
+                const allNotes = (t.notes || '').trim().split('\n').filter(line => line.trim().length > 0);
+                const latestUpdate = allNotes.length > 0 ? allNotes[allNotes.length - 1] : 'لا توجد تحديثات مسجلة بعد.';
+
+                const card = document.createElement('div');
+                card.className = `ticket-card ${statusClass}`;
+
+                card.innerHTML = `
+                    <div class="ticket-header">
+                        <span class="ticket-id">${escapeHtml(t.id)}</span>
+                        <div class="ticket-badges">
+                            <span class="badge badge-branch">${escapeHtml(t.branch)}</span>
+                            <span class="badge badge-category">${escapeHtml(t.category)}</span>
+                            <span class="badge ${statusBadgeClass}">${escapeHtml(t.status)}</span>
+                        </div>
+                    </div>
+
+                    <div class="ticket-body">
+                        <div class="client-info-row">
+                            <span class="client-name">${escapeHtml(t.clientName)}</span>
+                            <div class="contact-actions">
+                                ${hasPhone ? `
+                                    <a href="tel:${cleanPhone}" class="btn-call">📞 اتصال</a>
+                                    <a href="https://wa.me/${waPhone}" target="_blank" class="btn-wa">💬 واتساب</a>
+                                ` : '<span style="font-size:0.75rem; color:#777;">بدون رقم هاتف</span>'}
+                            </div>
+                        </div>
+
+                        <div class="scooter-meta">
+                            سكوتر: <strong>${escapeHtml(t.scooterModel)}</strong> 
+                            ${t.chassisNo && t.chassisNo !== '-' ? ` | شاسيه: <strong>${escapeHtml(t.chassisNo)}</strong>` : ''}
+                        </div>
+
+                        <div class="issue-text">
+                            ${escapeHtml(t.issue)}
+                        </div>
+
+                        <!-- عرض آخر تحديث فقط + زر فتح السجل الكامل -->
+                        <div class="updates-timeline-box" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                            <div style="flex:1;">
+                                <span style="color:var(--accent-orange); font-weight:700;">آخر تحديث:</span>
+                                <span>${escapeHtml(latestUpdate)}</span>
+                            </div>
+                            <button class="btn-sm" style="flex-shrink:0; background:#1b1b24; border-color:#3d3d52;" onclick="openHistoryModal('${t.id}')">
+                                سجل التحديثات 📜
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ticket-footer">
+                        <span>بتاريخ: ${escapeHtml(t.date)} | المكلف: <strong style="color:#FFA726;">${escapeHtml(t.assignee || 'غير محدد')}</strong></span>
+                        <div class="card-btn-group">
+                            <button class="btn-sm" onclick="openUpdateModal('${t.id}')">تحديث الحالة ✍️</button>
+                            <button class="btn-sm" onclick="openEditModal('${t.id}')">تعديل ⚙️</button>
+                            <button class="btn-sm btn-delete" onclick="handleDeleteTicket('${t.id}')">حذف 🗑️</button>
+                        </div>
+                    </div>
+                `;
+                fragment.appendChild(card);
+            });
+
+            container.appendChild(fragment);
+        }
 
         function toggleArchiveView() {
             IS_ARCHIVE_VIEW = !IS_ARCHIVE_VIEW;
@@ -963,7 +1045,6 @@
             }
         }
 
-        /* نافذة تحديث الحالة وإضافة ملاحظة */
         function openUpdateModal(ticketId) {
             const t = ALL_TICKETS.find(item => item.id === ticketId);
             if (!t) return;
@@ -1015,7 +1096,6 @@
             }
         }
 
-        /* نافذة تعديل بيانات التذكرة */
         function openEditModal(ticketId) {
             const t = ALL_TICKETS.find(item => item.id === ticketId);
             if (!t) return;
@@ -1080,7 +1160,6 @@
             }
         }
 
-        /* حذف التذكرة */
         async function handleDeleteTicket(ticketId) {
             if (!confirm(`هل أنت متأكد من رغبتك في حذف التذكرة (${ticketId}) نهائياً من الشيت؟`)) {
                 return;
@@ -1101,6 +1180,19 @@
             } catch (err) {
                 alert('فشل الاتصال بالسيرفر لحذف التذكرة.');
             }
+        }
+
+        function openHistoryModal(ticketId) {
+            const t = ALL_TICKETS.find(item => item.id === ticketId);
+            if (!t) return;
+
+            document.getElementById('historyModalTitle').textContent = `سجل التحديثات (${t.id}) - ${t.clientName}`;
+            document.getElementById('historyContent').textContent = (t.notes || '').trim() || 'لا توجد تحديثات سابقة مدونة.';
+            document.getElementById('historyModal').classList.add('active');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.remove('active');
         }
 
         function escapeHtml(str) {
