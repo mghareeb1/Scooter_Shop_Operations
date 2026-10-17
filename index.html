@@ -885,89 +885,20 @@
             renderTickets(filtered);
         }
 
-        function renderTickets(tickets) {
-            const container = document.getElementById('ticketsContainer');
-            const emptyBox = document.getElementById('emptyBox');
-
-            container.innerHTML = '';
-
-            if (tickets.length === 0) {
-                emptyBox.style.display = 'block';
-                return;
-            }
-
-            emptyBox.style.display = 'none';
-            const fragment = document.createDocumentFragment();
-
-            tickets.forEach(t => {
-                let statusClass = 'status-new';
-                let statusBadgeClass = 'badge-status-new';
-                if (t.status === 'قيد المتابعة') {
-                    statusClass = 'status-progress';
-                    statusBadgeClass = 'badge-status-progress';
-                } else if (t.status === 'تم الحل' || t.status === 'مغلقة') {
-                    statusClass = 'status-solved';
-                    statusBadgeClass = 'badge-status-solved';
-                }
-
-                const cleanPhone = (t.clientPhone || '').replace(/\D/g, '');
-                const waPhone = cleanPhone.startsWith('0') ? '2' + cleanPhone : cleanPhone;
-                const hasPhone = cleanPhone && cleanPhone.length >= 8;
-
-                const card = document.createElement('div');
-                card.className = `ticket-card ${statusClass}`;
-
-                card.innerHTML = `
-                    <div class="ticket-header">
-                        <span class="ticket-id">${escapeHtml(t.id)}</span>
-                        <div class="ticket-badges">
-                            <span class="badge badge-branch">${escapeHtml(t.branch)}</span>
-                            <span class="badge badge-category">${escapeHtml(t.category)}</span>
-                            <span class="badge ${statusBadgeClass}">${escapeHtml(t.status)}</span>
-                        </div>
-                    </div>
-
-                    <div class="ticket-body">
-                        <div class="client-info-row">
-                            <span class="client-name">${escapeHtml(t.clientName)}</span>
-                            <div class="contact-actions">
-                                ${hasPhone ? `
-                                    <a href="tel:${cleanPhone}" class="btn-call">📞 اتصال</a>
-                                    <a href="https://wa.me/${waPhone}" target="_blank" class="btn-wa">💬 واتساب</a>
-                                ` : '<span style="font-size:0.75rem; color:#777;">بدون رقم هاتف</span>'}
-                            </div>
-                        </div>
-
-                        <div class="scooter-meta">
-                            سكوتر: <strong>${escapeHtml(t.scooterModel)}</strong> 
-                            ${t.chassisNo && t.chassisNo !== '-' ? ` | شاسيه: <strong>${escapeHtml(t.chassisNo)}</strong>` : ''}
-                        </div>
-
-                        <div class="issue-text">
-                            ${escapeHtml(t.issue)}
-                        </div>
-
-                        <!-- عرض سجل التحديثات مباشرة على الكارت -->
-                        <div class="updates-timeline-box">
-                            <div class="timeline-header">سجل التحديثات والإجراءات:</div>
-                            ${escapeHtml(t.notes || 'لا توجد ملاحظات مدونة بعد.')}
-                        </div>
-                    </div>
-
-                    <div class="ticket-footer">
-                        <span>بتاريخ: ${escapeHtml(t.date)} | المكلف: <strong style="color:#FFA726;">${escapeHtml(t.assignee || 'غير محدد')}</strong></span>
-                        <div class="card-btn-group">
-                            <button class="btn-sm" onclick="openUpdateModal('${t.id}')">تحديث الحالة ✍️</button>
-                            <button class="btn-sm" onclick="openEditModal('${t.id}')">تعديل ⚙️</button>
-                            <button class="btn-sm btn-delete" onclick="handleDeleteTicket('${t.id}')">حذف 🗑️</button>
-                        </div>
-                    </div>
-                `;
-                fragment.appendChild(card);
-            });
-
-            container.appendChild(fragment);
-        }
+        <!-- نافذة منبثقة: عرض السجل الكامل للتحديثات -->
+<div id="historyModal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-title">
+            <span id="historyModalTitle">سجل التحديثات الكامل</span>
+            <button class="modal-close" onclick="closeHistoryModal()">✕</button>
+        </div>
+        <div id="historyContent" style="font-size:0.82rem; color:#e0e0ec; background:#101016; padding:12px; border-radius:8px; max-height:300px; overflow-y:auto; line-height:1.6; white-space:pre-wrap; border:1px solid #272733;">
+        </div>
+        <button type="button" class="btn-outline" style="width:100%; justify-content:center; margin-top:8px;" onclick="closeHistoryModal()">
+            إغلاق
+        </button>
+    </div>
+</div>
 
         function toggleArchiveView() {
             IS_ARCHIVE_VIEW = !IS_ARCHIVE_VIEW;
